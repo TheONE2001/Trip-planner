@@ -1,257 +1,251 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>行程可视化规划器 v3</title>
-  <style>
-    :root{--bg:#f7f7f8;--card:#ffffff;--muted:#6b7280;--accent:#9aa3ad;--shadow:0 8px 24px rgba(16,24,40,0.06)}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#111827;background:var(--bg)}
-    .app{max-width:1200px;margin:28px auto;padding:22px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-    h1{font-size:18px;margin:0;color:#111827}
-    .sub{color:var(--muted);font-size:13px}
-    .toolbar{display:flex;gap:8px;align-items:center}
-    button{border:0;background:#fff;padding:8px 12px;border-radius:10px;box-shadow:var(--shadow);cursor:pointer;font-size:13px}
-    .btn-primary{background:linear-gradient(180deg,#fff,#f6f7f8);border:1px solid #e6e9ec}
-    .btn-ghost{background:transparent;border:1px solid #e6e9ec}
-    .btn-danger{background:transparent;border:1px solid #f3c6c6;color:#b91c1c}
-    .layout{display:grid;grid-template-columns:420px 1fr;gap:18px}
-    .panel{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
-    .section{margin-bottom:12px}
-    .section h3{margin:0 0 8px 0;font-size:14px}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    input[type=text],input[type=date],input[type=time],input[type=number],select{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ec;font-size:13px}
-    .list{max-height:220px;overflow:auto;margin-top:8px;border-radius:8px;border:1px dashed #eef2f5;padding:8px}
-    .item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfcfd);border:1px solid #f1f5f9;margin-bottom:8px}
-    .item .meta{font-size:13px}
-    .item .meta small{display:block;color:var(--muted);font-size:12px}
-    .seq{background:#e5e7eb;border-radius:6px;padding:2px 6px;font-size:12px;margin-right:8px;color:#374151}
-    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-    .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:var(--shadow);border:1px solid #eceff2}
-    .card .route{font-weight:700;font-size:15px;margin-bottom:6px}
-    .card .price{font-weight:700;font-size:16px;color:#0f172a}
-    .card .meta{color:var(--muted);font-size:13px;margin-top:8px}
-    .card .tag{display:inline-block;padding:6px 8px;border-radius:999px;background:#f8fafc;font-size:12px;color:#374151;margin-right:6px}
-    .actions{display:flex;gap:8px;margin-top:12px}
-    .fav.active{background:#111827;color:#fff}
-    .toast{position:fixed;right:24px;bottom:24px;background:#111827;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 8px 20px rgba(2,6,23,0.4);opacity:0.95}
-    footer{text-align:center;color:var(--muted);font-size:13px;margin-top:18px}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.panel{order:2}}
-  </style>
+<meta charset="UTF-8">
+<title>行程规划器</title>
+<style>
+  body { font-family: "Microsoft YaHei", sans-serif; background: #f9f9f9; color: #333; margin: 0; padding: 20px; }
+  h2 { margin-top: 0; }
+  .container { max-width: 1000px; margin: auto; }
+  .form-section { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+  .form-section label { display: block; margin-top: 10px; font-weight: bold; }
+  .form-section input, .form-section select { width: 100%; padding: 6px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+  .btn { display: inline-block; padding: 6px 12px; margin-top: 10px; border: none; border-radius: 4px; cursor: pointer; }
+  .btn-add { background: #4caf50; color: white; }
+  .btn-reset { background: #f44336; color: white; }
+  .cards { display: flex; flex-wrap: wrap; gap: 10px; }
+  .card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); width: 300px; position: relative; }
+  .card-header { font-weight: bold; margin-bottom: 6px; }
+  .card-detail { font-size: 14px; margin-bottom: 4px; }
+  .card-buttons { display: flex; gap: 6px; margin-top: 6px; }
+  .btn-card { flex: 1; padding: 4px; font-size: 13px; border-radius: 4px; cursor: pointer; }
+  .btn-edit { background: #2196f3; color: #fff; }
+  .btn-delete { background: #f44336; color: #fff; }
+  .btn-copy { background: #ff9800; color: #fff; }
+  .btn-fav { background: #9c27b0; color: #fff; }
+  .notification { position: fixed; top: 20px; right: 20px; background: #333; color: #fff; padding: 10px 15px; border-radius: 4px; opacity: 0.9; display: none; z-index: 999; }
+</style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div>
-        <h1>行程可视化规划器 v3</h1>
-        <div class="sub">更智能的输入、完整展示、自动保存 · 白+灰 高级感</div>
-      </div>
-      <div class="toolbar">
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="small">筛选：</label>
-          <select id="filterDirect"><option value="any">全部</option><option value="direct">仅直飞</option><option value="transfer">含中转</option></select>
-          <label class="small">最大中转 <input id="filterStops" type="number" min="0" value="10" style="width:70px"></label>
-          <label class="small">最小停留 <input id="filterStay" type="number" min="0" value="0" style="width:70px">天</label>
-          <label class="small">价格上限 <input id="filterPrice" type="number" min="0" value="999999" style="width:100px"></label>
-          <label class="small">排序 <select id="sortBy"><option value="price">价格</option><option value="stay">停留</option><option value="stops">中转</option></select></label>
-        </div>
-        <div style="margin-left:12px">
-          <button id="resetBtn" class="btn-ghost">重置页面</button>
-          <button id="copyFavorites" class="btn-primary">复制收藏卡片</button>
-        </div>
-      </div>
-    </header>
-
-    <div class="layout">
-      <aside class="panel">
-        <div class="section">
-          <h3>出发方案（必填：出发地/目的地/航空公司）</h3>
-          <div class="form-grid">
-            <input id="o_from" type="text" placeholder="出发地（例如：PEK）">
-            <input id="o_to" type="text" placeholder="目的地（例如：BCN）">
-            <input id="o_airline" type="text" placeholder="航空公司（例如：Air China）">
-            <input id="o_flightno" type="text" placeholder="航班号（选填）">
-            <input id="o_price" type="number" min="0" placeholder="价格（数字）">
-            <input id="o_date" type="date" placeholder="出发日期（YYYY-MM-DD）">
-            <input id="o_time" type="time" placeholder="出发时间（可选）">
-            <input id="o_arrdate" type="date" placeholder="到达日期（可选）">
-            <input id="o_arrtime" type="time" placeholder="到达时间（可选）">
-            <select id="o_isDirect"><option value="1">直飞</option><option value="0">中转</option></select>
-            <select id="o_transferCount"><option value="0">中转 0</option><option value="1">中转 1</option><option value="2">中转 2</option><option value="3">中转 3</option></select>
-            <div style="grid-column:1/3">
-              <div id="o_transferArea"></div>
-            </div>
-            <input id="o_note" type="text" placeholder="购票来源 / 备注（可选）" style="grid-column:1/3">
-          </div>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button id="addOutbound" class="btn-primary">添加出发方案</button>
-          </div>
-          <div id="outList" class="list"></div>
-        </div>
-
-        <div class="section">
-          <h3>返程方案（必填：出发地/目的地/航空公司）</h3>
-          <div class="form-grid">
-            <input id="r_from" type="text" placeholder="出发地（例如：BCN）">
-            <input id="r_to" type="text" placeholder="目的地（例如：PEK）">
-            <input id="r_airline" type="text" placeholder="航空公司（例如：Iberia）">
-            <input id="r_flightno" type="text" placeholder="航班号（选填）">
-            <input id="r_price" type="number" min="0" placeholder="价格（数字）">
-            <input id="r_date" type="date" placeholder="出发日期（YYYY-MM-DD）">
-            <input id="r_time" type="time" placeholder="出发时间（可选）">
-            <input id="r_arrdate" type="date" placeholder="到达日期（可选）">
-            <input id="r_arrtime" type="time" placeholder="到达时间（可选）">
-            <select id="r_isDirect"><option value="1">直飞</option><option value="0">中转</option></select>
-            <select id="r_transferCount"><option value="0">中转 0</option><option value="1">中转 1</option><option value="2">中转 2</option><option value="3">中转 3</option></select>
-            <div style="grid-column:1/3">
-              <div id="r_transferArea"></div>
-            </div>
-            <input id="r_note" type="text" placeholder="购票来源 / 备注（可选）" style="grid-column:1/3">
-          </div>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button id="addReturn" class="btn-primary">添加返程方案</button>
-          </div>
-          <div id="retList" class="list"></div>
-        </div>
-      </aside>
-
-      <main>
-        <div class="panel">
-          <div id="summaryText" class="meta">系统会在添加/修改/删除时自动更新组合。</div>
-          <div id="cards" class="cards" style="margin-top:12px"></div>
-        </div>
-        <footer>展示以“出发地 → 目的地”为主，航班信息置于详情。复制为完整格式文本。删除时需要确认，其他操作会有自动消失提示。</footer>
-      </main>
-    </div>
+<div class="container">
+  <h2>行程方案添加</h2>
+  <div class="form-section">
+    <label>出发地*</label>
+    <input type="text" id="from" placeholder="请输入出发地">
+    
+    <label>目的地*</label>
+    <input type="text" id="to" placeholder="请输入目的地">
+    
+    <label>出发日期*</label>
+    <input type="text" id="departDate" placeholder="YYYY/MM/DD">
+    
+    <label>到达日期</label>
+    <input type="text" id="arriveDate" placeholder="YYYY/MM/DD 或 --:--">
+    
+    <label>出发时间</label>
+    <input type="text" id="departTime" placeholder="HH:MM 或 --:--">
+    
+    <label>价格*</label>
+    <input type="number" id="price" placeholder="￥0" min="0">
+    
+    <label>航空公司</label>
+    <input type="text" id="airline" placeholder="可选">
+    
+    <label>航班号</label>
+    <input type="text" id="flightNumber" placeholder="可选">
+    
+    <label>是否直飞</label>
+    <select id="directFlight">
+      <option value="yes">直飞</option>
+      <option value="no">中转</option>
+    </select>
+    
+    <label id="transferLabel" style="display:none;">中转次数</label>
+    <select id="transferCount" style="display:none;">
+      <option value="1">1次</option>
+      <option value="2">2次</option>
+      <option value="3">3次</option>
+    </select>
+    
+    <div id="transferDetails"></div>
+    
+    <button class="btn btn-add" id="addBtn">添加方案</button>
+    <button class="btn btn-reset" id="resetBtn">清空所有</button>
   </div>
+  
+  <h2>往返方案组合</h2>
+  <div class="cards" id="cardsContainer"></div>
+</div>
 
-  <div id="toastRoot" style="position:fixed;right:24px;bottom:24px"></div>
+<div class="notification" id="notification"></div>
 
-  <script>
-    // util
-    const $ = id=>document.getElementById(id);
-    function toast(txt,timeout=2000){const t=document.createElement('div');t.className='toast';t.textContent=txt;$('toastRoot').appendChild(t);setTimeout(()=>t.remove(),timeout);}    
-    function el(t,cls){const e=document.createElement(t);if(cls) e.className=cls;return e}
-    function dateToYSMD(d){if(!d) return null;const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
-    function parseDateTime(dateStr,timeStr){ if(!dateStr) return null; if(!timeStr) return new Date(dateStr+'T00:00:00'); return new Date(dateStr+'T'+timeStr); }
-    function daysBetween(a,b){ if(!a||!b) return null; return Math.round((b - a)/(24*60*60*1000)); }
+<script>
+const fromInput = document.getElementById('from');
+const toInput = document.getElementById('to');
+const departDateInput = document.getElementById('departDate');
+const arriveDateInput = document.getElementById('arriveDate');
+const departTimeInput = document.getElementById('departTime');
+const priceInput = document.getElementById('price');
+const airlineInput = document.getElementById('airline');
+const flightNumberInput = document.getElementById('flightNumber');
+const directFlightSelect = document.getElementById('directFlight');
+const transferLabel = document.getElementById('transferLabel');
+const transferCount = document.getElementById('transferCount');
+const transferDetails = document.getElementById('transferDetails');
+const addBtn = document.getElementById('addBtn');
+const resetBtn = document.getElementById('resetBtn');
+const cardsContainer = document.getElementById('cardsContainer');
+const notification = document.getElementById('notification');
 
-    // storage
-    let outbound=[],returns_=[],combos=[];
-    function save(){localStorage.setItem('tripData_v3',JSON.stringify({outbound,returns_}));}
-    function load(){const s=localStorage.getItem('tripData_v3'); if(s){try{const j=JSON.parse(s); outbound=j.outbound||[]; returns_=j.returns_||[];}catch(e){console.error(e)}}}
+let plans = JSON.parse(localStorage.getItem('plans')||'[]');
+let editIndex = null;
 
-    // transfer area generation (dynamic inputs corresponding to transfers)
-    function genTransferArea(prefix){const area = $(prefix+'transferArea'); area.innerHTML=''; const isDirect = $(prefix+'isDirect').value==='1'; const count = parseInt($(prefix+'transferCount').value)||0; if(isDirect || count===0) return; for(let i=0;i<count;i++){ const wrap=el('div'); wrap.style.display='flex'; wrap.style.gap='8px'; wrap.style.marginBottom='6px'; const stopIn=el('input'); stopIn.type='text'; stopIn.placeholder=`中转地 ${i+1}`; stopIn.id = prefix+`stop_${i}`; stopIn.style.flex='1'; const flightIn=el('input'); flightIn.type='text'; flightIn.placeholder=`对应航班 ${i+1}（选填）`; flightIn.id = prefix+`leg_${i}`; flightIn.style.width='140px'; wrap.append(stopIn,flightIn); area.appendChild(wrap); } }
+// 初始化默认日期为今天
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
+}
+departDateInput.value = todayStr();
 
-    ['o_isDirect','o_transferCount','r_isDirect','r_transferCount'].forEach(id=>{ $(id).addEventListener('change',()=>{ const prefix = id.startsWith('o_')?'o_':'r_'; genTransferArea(prefix); }); });
+// 动态显示中转次数
+directFlightSelect.addEventListener('change',()=>{
+  if(directFlightSelect.value==='no'){
+    transferLabel.style.display='block';
+    transferCount.style.display='block';
+  }else{
+    transferLabel.style.display='none';
+    transferCount.style.display='none';
+    transferDetails.innerHTML='';
+  }
+});
 
-    // collect form with validation
-    function collect(prefix){ const obj={ from:$(prefix+'from').value.trim(), to:$(prefix+'to').value.trim(), airline:$(prefix+'airline').value.trim(), flightno:$(prefix+'flightno').value.trim(), price: Number($(prefix+'price').value)||0, date:$(prefix+'date').value||null, time:$(prefix+'time').value||null, arrdate:$(prefix+'arrdate').value||null, arrtime:$(prefix+'arrtime').value||null, direct: $(prefix+'isDirect').value==='1', transferCount: parseInt($(prefix+'transferCount').value)||0, stops: [], legs: [], note: $(prefix+'note').value.trim() };
-      if(obj.price<0){ toast('价格不能为负数'); return null; }
-      for(let i=0;i<obj.transferCount;i++){ const s=$(prefix+`stop_${i}`); const l=$(prefix+`leg_${i}`); obj.stops.push(s? s.value.trim() : ''); obj.legs.push(l? l.value.trim() : ''); }
-      return obj; }
+// 生成中转输入
+transferCount.addEventListener('change',()=>{
+  let n = parseInt(transferCount.value);
+  let html = '';
+  for(let i=1;i<=n;i++){
+    html += `<label>中转${i}地</label><input type="text" class="transferPlace" placeholder="中转地${i}">
+             <label>对应航班号</label><input type="text" class="transferFlight" placeholder="可选">`;
+  }
+  transferDetails.innerHTML = html;
+});
 
-    // render lists
-    function renderList(){ renderOutList(); renderRetList(); renderCombos(); save(); }
-    function renderOutList(){ outList.innerHTML=''; outbound.forEach((o,i)=>{ const item=el('div','item'); const meta=el('div','meta'); let times=''; if(o.date) times+=o.date + (o.time? ' '+o.time:''); else times+='--:--'; if(o.arrdate) times+=' → '+ (o.arrdate + (o.arrtime? ' '+o.arrtime:'')); else times+=' → --:--'; meta.innerHTML=`<span class='seq'>#${i+1}</span><strong>${o.from} → ${o.to}</strong><small>${times}</small><small>${o.airline}${o.flightno? ' · '+o.flightno : ''} · ¥${o.price}</small>`; const btns=el('div'); const edit=el('button'); edit.textContent='修改'; edit.addEventListener('click',()=>startEdit('out',i)); const del=el('button'); del.textContent='删除'; del.addEventListener('click',()=>{ if(confirm('确定删除此出发方案？')){ outbound.splice(i,1); toast('已删除'); renderList(); } }); btns.append(edit,del); item.append(meta,btns); outList.appendChild(item); }); }
-    function renderRetList(){ retList.innerHTML=''; returns_.forEach((o,i)=>{ const item=el('div','item'); const meta=el('div','meta'); let times=''; if(o.date) times+=o.date + (o.time? ' '+o.time:''); else times+='--:--'; if(o.arrdate) times+=' → '+ (o.arrdate + (o.arrtime? ' '+o.arrtime:'')); else times+=' → --:--'; meta.innerHTML=`<span class='seq'>#${i+1}</span><strong>${o.from} → ${o.to}</strong><small>${times}</small><small>${o.airline}${o.flightno? ' · '+o.flightno : ''} · ¥${o.price}</small>`; const btns=el('div'); const edit=el('button'); edit.textContent='修改'; edit.addEventListener('click',()=>startEdit('ret',i)); const del=el('button'); del.textContent='删除'; del.addEventListener('click',()=>{ if(confirm('确定删除此返程方案？')){ returns_.splice(i,1); toast('已删除'); renderList(); } }); btns.append(edit,del); item.append(meta,btns); retList.appendChild(item); }); }
+// 显示通知
+function showNotification(msg){
+  notification.innerText = msg;
+  notification.style.display='block';
+  setTimeout(()=>{notification.style.display='none'},2000);
+}
 
-    // add handlers
-    function clearOutboundInputs(){ ['o_from','o_to','o_airline','o_flightno','o_price','o_date','o_time','o_arrdate','o_arrtime','o_note'].forEach(id=>$(id).value=''); $( 'o_isDirect').value='1'; $( 'o_transferCount').value='0'; genTransferArea('o_'); }
-    function clearReturnInputs(){ ['r_from','r_to','r_airline','r_flightno','r_price','r_date','r_time','r_arrdate','r_arrtime','r_note'].forEach(id=>$(id).value=''); $('r_isDirect').value='1'; $('r_transferCount').value='0'; genTransferArea('r_'); }
-
-    function addOutbound(){ const o=collect('o_'); if(!o) return; if(!o.from||!o.to||!o.airline){ toast('请填写：出发地、目的地、航空公司'); return; } outbound.push(o); toast('已添加出发方案'); // auto-fill return draft
-      // auto prefill return fields based on this outbound
-      $('r_from').value = o.to; $('r_to').value = o.from; // set return date default to same day
-      if(o.date) $('r_date').value = o.date; // others unchanged
-      clearOutboundInputs(); renderList(); }
-    function addReturn(){ const r=collect('r_'); if(!r) return; if(!r.from||!r.to||!r.airline){ toast('请填写：出发地、目的地、航空公司'); return; } returns_.push(r); toast('已添加返程方案'); clearReturnInputs(); renderList(); }
-
-    $('addOutbound').addEventListener('click', addOutbound);
-    $('addReturn').addEventListener('click', addReturn);
-
-    // edit flow
-    function startEdit(type,idx){ const prefix = type==='out'?'o_':'r_'; const list = type==='out'? outbound: returns_; const obj = JSON.parse(JSON.stringify(list[idx])); // clone
-      // fill inputs including dynamic transfer fields
-      $(prefix+'from').value = obj.from||''; $(prefix+'to').value = obj.to||''; $(prefix+'airline').value = obj.airline||''; $(prefix+'flightno').value = obj.flightno||''; $(prefix+'price').value = obj.price||''; $(prefix+'date').value = obj.date||''; $(prefix+'time').value = obj.time||''; $(prefix+'arrdate').value = obj.arrdate||''; $(prefix+'arrtime').value = obj.arrtime||''; $(prefix+'isDirect').value = obj.direct? '1':'0'; $(prefix+'transferCount').value = obj.transferCount||0; genTransferArea(prefix);
-      // after generating fields set values
-      for(let i=0;i<(obj.transferCount||0);i++){ const s=$(prefix+`stop_${i}`); const l=$(prefix+`leg_${i}`); if(s) s.value = obj.stops[i]||''; if(l) l.value = obj.legs[i]||''; }
-      $(prefix+'note').value = obj.note||'';
-      // change button behavior
-      const btn = $(type==='out'?'addOutbound':'addReturn'); const oldText = btn.textContent; btn.textContent='保存修改'; const saveFn = ()=>{ const newObj = collect(prefix); if(!newObj) return; if(!newObj.from||!newObj.to||!newObj.airline){ toast('请填写：出发地、目的地、航空公司'); return; } list[idx]=newObj; btn.textContent=oldText; btn.removeEventListener('click',saveFn); if(type==='out'){ btn.addEventListener('click', addOutbound); } else { btn.addEventListener('click', addReturn); } renderList(); toast('已保存修改'); };
-      // temporarily replace click
-      btn.removeEventListener('click', type==='out'? addOutbound: addReturn); btn.addEventListener('click', saveFn, {once:true}); }
-
-    // combos generation + display with filters
-    function generateCombos(){ combos=[]; for(const o of outbound){ for(const r of returns_){ // compute stay days using dates if possible
-          const oDt = parseDateTime(o.date,o.time); const rDt = parseDateTime(r.date,r.time);
-          let stay = null; if(oDt && rDt) stay = daysBetween(oDt, rDt); else if(o.date && r.date){ // use date-only
-            const od = new Date(o.date+'T00:00:00'); const rd = new Date(r.date+'T00:00:00'); stay = daysBetween(od,rd);
-          }
-          const totalPrice = (Number(o.price)||0) + (Number(r.price)||0);
-          const totalStops = (o.transferCount||0) + (r.transferCount||0);
-          const direct = o.direct && r.direct;
-          combos.push({out:o,ret:r,stay,totalPrice,totalStops,direct,fav: false}); } }
-      applyFiltersAndRender(); }
-
-    function applyFiltersAndRender(){ let list = combos.slice(); const fDirect = $('filterDirect').value; if(fDirect==='direct') list = list.filter(c=>c.direct); else if(fDirect==='transfer') list = list.filter(c=>!c.direct);
-      const maxStops = parseInt($('filterStops').value)||999; const minStay = parseInt($('filterStay').value)||0; const maxPrice = parseFloat($('filterPrice').value)||9999999;
-      list = list.filter(c=> (c.totalStops<=maxStops) && (c.stay===null || c.stay>=minStay) && (c.totalPrice<=maxPrice));
-      const sortBy = $('sortBy').value; if(sortBy==='price') list.sort((a,b)=>a.totalPrice-b.totalPrice); else if(sortBy==='stay') list.sort((a,b)=>{ if(a.stay===null) return 1; if(b.stay===null) return -1; return a.stay-b.stay }); else if(sortBy==='stops') list.sort((a,b)=>a.totalStops-b.totalStops);
-      renderCards(list); }
-
-    function renderCards(list){ cards.innerHTML=''; if(list.length===0){ $('summaryText').textContent='暂无组合。' ; return; } $('summaryText').textContent=`共 ${list.length} 个组合（已应用筛选）`;
-      list.forEach((c,idx)=>{ const card=el('div','card'); const route=el('div','route'); route.textContent = `${c.out.from} → ${c.out.to}  ·  ${c.ret.from} → ${c.ret.to}`; const price=el('div','price'); price.textContent = `¥${c.totalPrice}`; const top = el('div'); top.style.display='flex'; top.style.justifyContent='space-between'; top.append(route,price); card.append(top);
-        // tags
-        const tags = el('div'); tags.style.marginTop='8px'; if(c.direct) tags.innerHTML += `<span class='tag'>直飞</span>`; else tags.innerHTML += `<span class='tag'>含中转</span>`; tags.innerHTML += `<span class='tag'>停留 ${c.stay===null? '--': c.stay+' 天'}</span>`; tags.innerHTML += `<span class='tag'>中转 ${c.totalStops} 次</span>`; card.append(tags);
-        // details (complete)
-        const detail = el('div','meta'); detail.style.marginTop='8px'; detail.innerHTML = `<div><strong>去程</strong>：${c.out.airline}${c.out.flightno? ' · '+c.out.flightno:''} · ${c.out.from} ${c.out.date||''}${c.out.time? ' '+c.out.time:''} → ${c.out.to} ${c.out.arrdate? c.out.arrdate:''}${c.out.arrtime? ' '+c.out.arrtime:''} · ¥${c.out.price}</div>`;
-        if(c.out.transferCount>0) detail.innerHTML += `<div>去程中转：${(c.out.stops||[]).filter(Boolean).join(' → ')}</div>`;
-        detail.innerHTML += `<div style='margin-top:6px'><strong>回程</strong>：${c.ret.airline}${c.ret.flightno? ' · '+c.ret.flightno:''} · ${c.ret.from} ${c.ret.date||''}${c.ret.time? ' '+c.ret.time:''} → ${c.ret.to} ${c.ret.arrdate? c.ret.arrdate:''}${c.ret.arrtime? ' '+c.ret.arrtime:''} · ¥${c.ret.price}</div>`;
-        if(c.ret.transferCount>0) detail.innerHTML += `<div>回程中转：${(c.ret.stops||[]).filter(Boolean).join(' → ')}</div>`;
-        if(c.out.note) detail.innerHTML += `<div>去程备注：${c.out.note}</div>`; if(c.ret.note) detail.innerHTML += `<div>回程备注：${c.ret.note}</div>`;
-        card.append(detail);
-        // actions
-        const actions = el('div','actions'); const fav=el('button','fav'); fav.textContent='收藏'; fav.onclick=()=>{ c.fav=!c.fav; fav.classList.toggle('active'); save(); toast(c.fav? '已收藏':'取消收藏'); }; const cp=el('button'); cp.textContent='复制'; cp.onclick=()=>{ copyCard(c); toast('已复制卡片信息'); }; actions.append(fav,cp); card.append(actions);
-        cards.append(card);
-      }); }
-
-    function copyCard(c){ const parts=[]; parts.push('--- 组合详情 ---'); parts.push(`去程: ${c.out.airline}${c.out.flightno? ' · '+c.out.flightno:''} | ${c.out.from}→${c.out.to} | ${c.out.date||'--'} ${c.out.time||''} → ${c.out.arrdate||'--'} ${c.out.arrtime||''} | 票价: ¥${c.out.price}`); if(c.out.transferCount>0) parts.push('去程中转: '+(c.out.stops||[]).filter(Boolean).join(' → ')); parts.push(`回程: ${c.ret.airline}${c.ret.flightno? ' · '+c.ret.flightno:''} | ${c.ret.from}→${c.ret.to} | ${c.ret.date||'--'} ${c.ret.time||''} → ${c.ret.arrdate||'--'} ${c.ret.arrtime||''} | 票价: ¥${c.ret.price}`); if(c.ret.transferCount>0) parts.push('回程中转: '+(c.ret.stops||[]).filter(Boolean).join(' → ')); parts.push(`总价: ¥${c.totalPrice}`); parts.push(`停留: ${c.stay===null? '--': c.stay+' 天'}`); parts.push(`中转数: ${c.totalStops}`); if(c.out.note) parts.push('去程备注: '+c.out.note); if(c.ret.note) parts.push('回程备注: '+c.ret.note); navigator.clipboard.writeText(parts.join('
-')); }
-
-    // filters
-    ['filterDirect','filterStops','filterStay','filterPrice','sortBy'].forEach(id=>$(id).addEventListener('change',()=>{ applyFiltersAndRender(); }));
-
-    function applyFiltersAndRender(){ applyFiltersAndRender_inner(); }
-    function applyFiltersAndRender_inner(){ // simply call generate combos filter
-      // combos already generated; just filter and render
-      const fDirect = $('filterDirect').value; let list = combos.slice(); if(fDirect==='direct') list = list.filter(c=>c.direct); else if(fDirect==='transfer') list = list.filter(c=>!c.direct);
-      const maxStops = parseInt($('filterStops').value)||999; const minStay = parseInt($('filterStay').value)||0; const maxPrice = parseFloat($('filterPrice').value)||9999999;
-      list = list.filter(c=> (c.totalStops<=maxStops) && (c.stay===null || c.stay>=minStay) && (c.totalPrice<=maxPrice));
-      const sortBy = $('sortBy').value; if(sortBy==='price') list.sort((a,b)=>a.totalPrice-b.totalPrice); else if(sortBy==='stay') list.sort((a,b)=>{ if(a.stay===null) return 1; if(b.stay===null) return -1; return a.stay-b.stay }); else if(sortBy==='stops') list.sort((a,b)=>a.totalStops-b.totalStops);
-      renderCards(list);
+// 添加或修改方案
+function savePlan(){
+  const from = fromInput.value.trim();
+  const to = toInput.value.trim();
+  const departDate = departDateInput.value.trim();
+  const arriveDate = arriveDateInput.value.trim() || '--:--';
+  const departTime = departTimeInput.value.trim() || '--:--';
+  let price = parseFloat(priceInput.value);
+  if(!from||!to||!departDate||isNaN(price)||price<0){ showNotification('请填写必填项并保证价格非负'); return;}
+  if(!/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(departDate)){ showNotification('出发日期格式应为 yyyy/mm/dd'); return;}
+  if(arriveDate!=='--:--' && !/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(arriveDate)){ showNotification('到达日期格式应为 yyyy/mm/dd 或 --:--'); return;}
+  
+  const airline = airlineInput.value.trim();
+  const flightNumber = flightNumberInput.value.trim();
+  const direct = directFlightSelect.value;
+  const transfers = [];
+  if(direct==='no'){
+    const places = Array.from(document.getElementsByClassName('transferPlace')).map(x=>x.value.trim());
+    const flights = Array.from(document.getElementsByClassName('transferFlight')).map(x=>x.value.trim());
+    for(let i=0;i<places.length;i++){
+      if(places[i]) transfers.push({place:places[i],flight:flights[i]});
     }
+  }
+  
+  const plan = {from,to,departDate,arriveDate,departTime,price,airline,flightNumber,direct,transfers,fav:false};
+  
+  if(editIndex!==null){
+    plans[editIndex]=plan;
+    editIndex=null;
+    addBtn.innerText='添加方案';
+  }else{
+    plans.push(plan);
+  }
+  
+  localStorage.setItem('plans',JSON.stringify(plans));
+  renderPlans();
+  resetForm();
+  showNotification('保存成功');
+}
 
-    // reset & copy favorites
-    $('resetBtn').addEventListener('click',()=>{ if(confirm('确定清空所有数据？此操作将删除本地保存且不可恢复。')){ localStorage.removeItem('tripData_v3'); outbound=[]; returns_=[]; combos=[]; renderList(); toast('已重置'); } });
-    $('copyFavorites').addEventListener('click',()=>{ const favs = combos.filter(c=>c.fav); if(!favs.length){ toast('暂无收藏卡片'); return; } const text = favs.map(c=>`${c.out.from}→${c.out.to} | ${c.ret.from}→${c.ret.to} | ¥${c.totalPrice}`).join('
-'); navigator.clipboard.writeText(text); toast('已复制收藏卡片信息'); });
+// 渲染卡片
+function renderPlans(){
+  cardsContainer.innerHTML='';
+  plans.forEach((p,i)=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML=`
+      <div class="card-header">${i+1}. ${p.from} → ${p.to} ￥${p.price}</div>
+      <div class="card-detail">出发: ${p.departDate} ${p.departTime}</div>
+      <div class="card-detail">到达: ${p.arriveDate}</div>
+      ${p.airline?`<div class="card-detail">航空公司: ${p.airline}</div>`:''}
+      ${p.flightNumber?`<div class="card-detail">航班号: ${p.flightNumber}</div>`:''}
+      <div class="card-detail">${p.direct==='yes'?'直飞':'中转'+p.transfers.length+'次'}</div>
+    `;
+    if(p.transfers.length>0){
+      p.transfers.forEach((t,j)=>{
+        const div = document.createElement('div');
+        div.className='card-detail';
+        div.innerText = `中转${j+1}: ${t.place} ${t.flight?('航班号:'+t.flight):''}`;
+        card.appendChild(div);
+      });
+    }
+    
+    const btnDiv = document.createElement('div'); btnDiv.className='card-buttons';
+    const editBtn = document.createElement('button'); editBtn.className='btn-card btn-edit'; editBtn.innerText='修改';
+    editBtn.onclick=()=>editPlan(i);
+    const delBtn = document.createElement('button'); delBtn.className='btn-card btn-delete'; delBtn.innerText='删除';
+    delBtn.onclick=()=>deletePlan(i);
+    const copyBtn = document.createElement('button'); copyBtn.className='btn-card btn-copy'; copyBtn.innerText='复制';
+    copyBtn.onclick=()=>copyPlan(p);
+    const favBtn = document.createElement('button'); favBtn.className='btn-card btn-fav'; favBtn.innerText=p.fav?'已收藏':'收藏';
+    favBtn.onclick=()=>toggleFav(i,favBtn);
+    btnDiv.appendChild(editBtn); btnDiv.appendChild(delBtn); btnDiv.appendChild(copyBtn); btnDiv.appendChild(favBtn);
+    card.appendChild(btnDiv);
+    cardsContainer.appendChild(card);
+  });
+}
 
-    // initial load
-    load(); // render inputs defaults: set date inputs default year to current year if empty
-    function initDefaults(){ const today = new Date(); const y = today.getFullYear(); if(!$('o_date').value) $('o_date').value = dateToYSMD(today); if(!$('r_date').value) $('r_date').value = dateToYSMD(today); }
-    initDefaults(); renderList(); generateCombos();
+// 重置表单
+function resetForm(){
+  fromInput.value=''; toInput.value=''; departDateInput.value=todayStr(); arriveDateInput.value=''; departTimeInput.value=''; priceInput.value=''; airlineInput.value=''; flightNumberInput.value=''; directFlightSelect.value='yes'; transferLabel.style.display='none'; transferCount.style.display='none'; transferDetails.innerHTML=''; editIndex=null; addBtn.innerText='添加方案';
+}
 
-    // auto regenerate combos on data change
-    const observerIds = ['o_from','o_to','o_airline','o_price','o_date','o_time','o_arrdate','o_arrtime','o_isDirect','o_transferCount','r_from','r_to','r_airline','r_price','r_date','r_time','r_arrdate','r_arrtime','r_isDirect','r_transferCount'];
-    observerIds.forEach(id=>{ if($(id)) $(id).addEventListener('change',()=>{ /* no-op, user edits only */ }); });
+// 编辑方案
+function editPlan(index){
+  const p = plans[index];
+  fromInput.value=p.from; toInput.value=p.to; departDateInput.value=p.departDate; arriveDateInput.value=p.arriveDate; departTimeInput.value=p.departTime; priceInput.value=p.price; airlineInput.value=p.airline; flightNumberInput.value=p.flightNumber; directFlightSelect.value=p.direct;
+  if(p.direct==='no'){
+    transferLabel.style.display='block'; transferCount.style.display='block'; transferCount.value=p.transfers.length; transferDetails.innerHTML='';
+    let html='';
+    p.transfers.forEach((t)=>{
+      html += `<label>中转地</label><input type="text" class="transferPlace" value="${t.place}" placeholder="中转地">
+               <label>对应航班号</label><input type="text" class="transferFlight" value="${t.flight}" placeholder="可选">`;
+    });
+    transferDetails.innerHTML=html;
+  }
+  editIndex=index;
+  addBtn.innerText='保存修改';
+}
 
-    // regenerate whenever lists change (renderList calls renderCombos)
-    function renderCombos(){ generateCombos(); }
+// 删除方案
+function deletePlan(index){
+  if(confirm('确认删除该方案？')){
+    plans.splice(index,1);
+    localStorage.setItem('plans',JSON.stringify(plans));
+    renderPlans();
+  }
+}
 
-  </script>
-</body>
-</html>
+// 复制方案信息
+function copyPlan(p){
+  let text=`${p.from} → ${p.to} ￥${p.price}\n出发: ${p.departDate} ${p.departTime}\n到达: ${p.arriveDate}\n`;
+  if(p.airline) text+=`航空公司: ${
