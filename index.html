@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>往返行程自动整理器 (Notion 可嵌入)</title>
+  <style>
+    :root{font-family:Inter, system-ui, -apple-system, "Helvetica Neue", Arial;}
+    body{margin:0;background:#f5f7fb;color:#0f172a}
+    header{background:linear-gradient(90deg,#334155,#1e293b);color:white;padding:16px}
+    .wrap{max-width:1100px;margin:20px auto;padding:18px;background:white;border-radius:12px;box-shadow:0 6px 30px rgba(16,24,40,0.08)}
+    textarea{width:100%;height:220px;padding:10px;border-radius:8px;border:1px solid #e2e8f0;font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
+    .row{display:flex;gap:12px;align-items:center}
+    .controls{display:flex;gap:8px;margin-top:10px}
+    button{background:#2563eb;border:none;color:white;padding:8px 12px;border-radius:8px;cursor:pointer}
+    button.ghost{background:transparent;color:#111827;border:1px solid #e6eefb}
+    .grid{display:grid;grid-template-columns:1fr 420px;gap:18px;margin-top:16px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #eef2f7;text-align:left;font-size:13px}
+    th{background:#f8fafc;font-weight:600}
+    .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;font-size:12px;margin-right:6px}
+    .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+    select,input[type=number]{padding:6px;border-radius:8px;border:1px solid #e6eefb}
+    .small{font-size:13px;color:#475569}
+    .export{margin-top:10px}
+    .note{font-size:13px;color:#475569;margin-top:8px}
+    pre.sample{background:#0f172a;color:#e6eefb;padding:12px;border-radius:8px;overflow:auto}
+  </style>
+</head>
+<body>
+  <header>
+    <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center">
+      <h1 style="font-size:18px;margin:0">往返行程自动整理器 — 可嵌入 Notion / 托管于 GitHub Pages</h1>
+      <div class="small">生成组合 · 汇总价格 · 打标 · 导出 CSV</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h2 style="margin:6px 0 12px">说明 / 使用步骤</h2>
+    <ol>
+      <li>在左侧文本区按示例格式粘贴或书写所有出发(Outbound)与返程(Return)的候选航班。</li>
+      <li>按 <strong>解析并生成组合</strong>。页面会列出所有出发×返程的组合，并计算总价、停留天数、是否直飞、换乘次数等标签。</li>
+      <li>使用侧边的筛选器按价格、停留时长、是否直飞等筛选组合；可导出 CSV 或复制到剪贴板。</li>
+    </ol>
+
+    <div class="grid">
+      <div>
+        <label><strong>原始笔记（示例格式已预置）</strong></label>
+        <textarea id="input">
+# Outbound
+2026-02-16
+- Flight: CA123 | dep: 2026-02-16T08:30 | arr: 2026-02-16T17:10 | legs: PEK-AMS | stops:0 | price: 4500
+- Flight: MU456 | dep: 2026-02-16T09:40 | arr: 2026-02-16T23:10 | legs: PEK-FRA-BCN | stops:1 | price: 3800
+2026-02-17
+- Flight: CA789 | dep: 2026-02-17T08:30 | arr: 2026-02-17T17:10 | legs: PEK-AMS | stops:0 | price: 4700
+
+# Return
+2026-03-01
+- Flight: IB321 | dep: 2026-03-01T11:20 | arr: 2026-03-02T05:00 | legs: BCN-AMS-PEK | stops:1 | price: 4200
+- Flight: MU654 | dep: 2026-03-01T13:40 | arr: 2026-03-02T07:10 | legs: BCN-PEK | stops:0 | price: 4600
+2026-03-02
+- Flight: CA111 | dep: 2026-03-02T09:00 | arr: 2026-03-03T03:30 | legs: BCN-AMS-PEK | stops:1 | price: 4000
+        </textarea>
+
+        <div class="controls">
+          <button id="parseBtn">解析并生成组合</button>
+          <button class="ghost" id="clearBtn">清空</button>
+          <button class="ghost" id="sampleBtn">插入示例</button>
+        </div>
+
+        <div class="note">注意：解析器对示例格式最可靠。示例中的每条航班使用管道(|)分隔字段：Flight、dep(出发 ISO 时间)、arr(到达 ISO 时间)、legs(航段，用 - 分隔)、stops(中转次数)、price(人民币/欧元等)。你可以按此格式在笔记中写入多种方案，网页会自动组合。</div>
+
+        <div style="margin-top:12px">
+          <div class="filters">
+            <label>只看直飞 <input type="checkbox" id="onlyDirect"></label>
+            <label>最大总中转数 <input type="number" id="maxStops" min="0" value="10" style="width:70px"></label>
+            <label>最小停留天数 <input type="number" id="minStay" min="0" value="0" style="width:70px"></label>
+            <label>排序 <select id="sortBy"><option value="price">价格</option><option value="stay">停留天数</option><option value="stops">总中转数</option></select></label>
+          </div>
+          <div class="export">
+            <button id="exportCSV">导出 CSV</button>
+            <button id="copyBtn">复制到剪贴板</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0">生成的组合</h3>
+        <div id="summary" class="small">尚未解析。</div>
+        <div style="max-height:520px;overflow:auto;margin-top:8px">
+          <table id="resultTable"><thead><tr><th>Outbound</th><th>Return</th><th>总价</th><th>停留(天)</th><th>直飞?</th><th>总中转数</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:18px">格式示例（必须遵循的最重要字段）</h3>
+    <pre class="sample"># Outbound
+YYYY-MM-DD
+- Flight: CODE | dep: 2026-02-16T08:30 | arr: 2026-02-16T17:10 | legs: ORG-DST | stops:0 | price: 4500
+
+# Return
+YYYY-MM-DD
+- Flight: CODE | dep: 2026-03-01T11:20 | arr: 2026-03-02T05:00 | legs: DST-ORG | stops:1 | price: 4200
+
+说明：
+1) 日期行（YYYY-MM-DD）用于视觉分组，系统主要以每条航班的 dep/arr 的完整时间来计算停留时长和是否跨日。
+2) price 可带货币符号，但解析为数字。 
+3) legs 用连字符分隔航段（例如 PEK-AMS 或 BCN-AMS-PEK）——中转次数可从分段数减 1 推断。
+</pre>
+
+    <div style="margin-top:12px" class="small">部署提示：将本文件放到 GitHub 仓库的根目录，并启用 GitHub Pages（分支：gh-pages 或 main 的 /docs），然后把生成的页面 URL 嵌入到 Notion 的 Embed 块。</div>
+  </main>
+
+  <script>
+    // 简单解析器与组合生成
+    function parseInput(txt){
+      const lines = txt.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
+      const sections = {};
+      let currentSection = null;
+      for(const line of lines){
+        if(/^#\s*(Outbound|Return|出发|返程)/i.test(line)){
+          currentSection = line.replace(/^#\s*/,'').trim();
+          sections[currentSection] = sections[currentSection]||[];
+          continue;
+        }
+        // date-only line (YYYY-MM-DD)
+        if(/^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$/.test(line)){
+          // used for grouping only; ignore
+          continue;
+        }
+        // flight line starting with - or without
+        const flightLine = line.replace(/^[-*]\s*/,'');
+        // split by | and extract known fields
+        const parts = flightLine.split('|').map(p=>p.trim());
+        const obj = {};
+        for(const p of parts){
+          const [k,v] = p.split(':').map(s=>s.trim());
+          if(!v) continue;
+          const key = k.toLowerCase();
+          if(key.includes('flight')) obj.code = v;
+          else if(key==='dep' || key.includes('dep')) obj.dep = v;
+          else if(key==='arr' || key.includes('arr')) obj.arr = v;
+          else if(key.includes('legs')) obj.legs = v;
+          else if(key.includes('stop')) obj.stops = parseInt(v) || null;
+          else if(key.includes('price')){
+            const num = parseFloat(v.replace(/[^0-9.\-]/g,'')); obj.price = isNaN(num)?null:num;
+          } else {
+            // unknown: try to guess
+            if(/\d{2}:\d{2}/.test(p) && p.includes('T')){
+              // maybe dep/arr in ISO
+            }
+          }
+        }
+        // infer stops from legs if missing
+        if(!obj.stops && obj.legs){
+          obj.stops = Math.max(0, obj.legs.split(/[-–—]/).length - 1);
+        }
+        if(!obj.dep || !obj.arr || obj.price==null) {
+          // ignore incomplete lines silently
+          continue;
+        }
+        sections[currentSection] = sections[currentSection]||[];
+        sections[currentSection].push(obj);
+      }
+      return sections;
+    }
+
+    function isoDateToDate(s){
+      // try parse ISO-like, fallback
+      const d = new Date(s);
+      if(isNaN(d)){
+        // try add T if missing time
+        const try1 = new Date(s.replace(' ', 'T'));
+        if(!isNaN(try1)) return try1;
+        return null;
+      }
+      return d;
+    }
+
+    function generateCombinations(sections){
+      const outboundKeys = Object.keys(sections).filter(k=>/outbound|出发/i.test(k));
+      const returnKeys = Object.keys(sections).filter(k=>/return|返程/i.test(k));
+      const out = [];
+      if(outboundKeys.length===0 || returnKeys.length===0) return out;
+      const outList = sections[outboundKeys[0]] || [];
+      const retList = sections[returnKeys[0]] || [];
+      for(const o of outList){
+        for(const r of retList){
+          const oDep = isoDateToDate(o.dep);
+          const oArr = isoDateToDate(o.arr);
+          const rDep = isoDateToDate(r.dep);
+          const rArr = isoDateToDate(r.arr);
+          if(!oArr || !rDep) continue; // need arrival and return dep to compute stay
+          const stayMs = rDep - oArr;
+          const stayDays = Math.round(stayMs/ (24*60*60*1000));
+          const totalPrice = (o.price||0) + (r.price||0);
+          const totalStops = (o.stops||0) + (r.stops||0);
+          const direct = (o.stops||0)===0 && (r.stops||0)===0;
+          out.push({out:o,ret:r,totalPrice,totalStops,direct,stayDays,oDep,oArr,rDep,rArr});
+        }
+      }
+      return out;
+    }
+
+    function renderTable(items){
+      const tbody = document.querySelector('#resultTable tbody');
+      tbody.innerHTML='';
+      for(const it of items){
+        const tr = document.createElement('tr');
+        const outCell = document.createElement('td');
+        outCell.innerHTML = `${it.out.code || ''}<br><small>${it.out.dep} → ${it.out.arr}</small><div class="small">legs: ${it.out.legs||''}</div>`;
+        const retCell = document.createElement('td');
+        retCell.innerHTML = `${it.ret.code || ''}<br><small>${it.ret.dep} → ${it.ret.arr}</small><div class="small">legs: ${it.ret.legs||''}</div>`;
+        const priceCell = document.createElement('td'); priceCell.textContent = it.totalPrice;
+        const stayCell = document.createElement('td'); stayCell.textContent = isNaN(it.stayDays)?'N/A':it.stayDays;
+        const directCell = document.createElement('td'); directCell.textContent = it.direct? '是' : '否';
+        const stopsCell = document.createElement('td'); stopsCell.textContent = it.totalStops;
+        tr.appendChild(outCell);tr.appendChild(retCell);tr.appendChild(priceCell);tr.appendChild(stayCell);tr.appendChild(directCell);tr.appendChild(stopsCell);
+        tbody.appendChild(tr);
+      }
+    }
+
+    function applyFilters(items){
+      const onlyDirect = document.getElementById('onlyDirect').checked;
+      const maxStops = parseInt(document.getElementById('maxStops').value)||999;
+      const minStay = parseInt(document.getElementById('minStay').value)||0;
+      const sortBy = document.getElementById('sortBy').value;
+      let filtered = items.filter(it=>{
+        if(onlyDirect && !it.direct) return false;
+        if(it.totalStops>maxStops) return false;
+        if(it.stayDays < minStay) return false;
+        return true;
+      });
+      if(sortBy==='price') filtered.sort((a,b)=>a.totalPrice-b.totalPrice);
+      else if(sortBy==='stay') filtered.sort((a,b)=>a.stayDays-b.stayDays);
+      else if(sortBy==='stops') filtered.sort((a,b)=>a.totalStops-b.totalStops);
+      return filtered;
+    }
+
+    document.getElementById('parseBtn').addEventListener('click', ()=>{
+      const txt = document.getElementById('input').value;
+      const sections = parseInput(txt);
+      const combos = generateCombinations(sections);
+      window._combos = combos; // for export
+      const filtered = applyFilters(combos);
+      document.getElementById('summary').textContent = `共生成 ${combos.length} 个组合，当前筛选后 ${filtered.length} 个`;
+      renderTable(filtered);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', ()=>{document.getElementById('input').value='';});
+    document.getElementById('sampleBtn').addEventListener('click', ()=>{document.getElementById('input').value = document.querySelector('pre.sample').textContent.trim();});
+
+    document.getElementById('exportCSV').addEventListener('click', ()=>{
+      const combos = window._combos || [];
+      const filtered = applyFilters(combos);
+      const rows = [['out_code','out_dep','out_arr','out_legs','ret_code','ret_dep','ret_arr','ret_legs','total_price','stay_days','direct','total_stops']];
+      for(const it of filtered){
+        rows.push([it.out.code||'', it.out.dep||'', it.out.arr||'', it.out.legs||'', it.ret.code||'', it.ret.dep||'', it.ret.arr||'', it.ret.legs||'', it.totalPrice, it.stayDays, it.direct?1:0, it.totalStops]);
+      }
+      const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='trip_combinations.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', async ()=>{
+      const combos = window._combos || [];
+      const filtered = applyFilters(combos);
+      const lines = filtered.map(it=>`${it.out.code||''} (${it.out.dep}→${it.out.arr})  +  ${it.ret.code||''} (${it.ret.dep}→${it.ret.arr})  | 总价: ${it.totalPrice} | 停留: ${it.stayDays}天 | 直飞: ${it.direct? '是':'否'}`);
+      try{ await navigator.clipboard.writeText(lines.join('\n')); alert('已复制到剪贴板'); } catch(e){ alert('复制失败，请手动复制表格'); }
+    });
+
+    // live re-render when filters change
+    ['onlyDirect','maxStops','minStay','sortBy'].forEach(id=>{
+      document.getElementById(id).addEventListener('change', ()=>{
+        const combos = window._combos || [];
+        const filtered = applyFilters(combos);
+        document.getElementById('summary').textContent = `共生成 ${combos.length} 个组合，当前筛选后 ${filtered.length} 个`;
+        renderTable(filtered);
+      });
+    });
+
+    // initialize sample
+    document.getElementById('sampleBtn').click();
+  </script>
+</body>
+</html>
