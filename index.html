@@ -3,62 +3,46 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>行程可视化规划器</title>
+  <title>行程可视化规划器 v2</title>
   <style>
     :root{--bg:#f7f7f8;--card:#ffffff;--muted:#6b7280;--accent:#9aa3ad;--shadow:0 8px 24px rgba(16,24,40,0.06)}
-    html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#111827;background:var(--bg)}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#111827;background:var(--bg)}
     .app{max-width:1200px;margin:28px auto;padding:22px}
     header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
     h1{font-size:18px;margin:0;color:#111827}
     .sub{color:var(--muted);font-size:13px}
-
     .toolbar{display:flex;gap:8px;align-items:center}
     button{border:0;background:#fff;padding:8px 12px;border-radius:10px;box-shadow:var(--shadow);cursor:pointer;font-size:13px}
     .btn-primary{background:linear-gradient(180deg,#fff,#f6f7f8);border:1px solid #e6e9ec}
     .btn-ghost{background:transparent;border:1px solid #e6e9ec}
     .btn-danger{background:transparent;border:1px solid #f3c6c6;color:#b91c1c}
-
     .layout{display:grid;grid-template-columns:420px 1fr;gap:18px}
-
-    /* input panel */
     .panel{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
     .section{margin-bottom:12px}
     .section h3{margin:0 0 8px 0;font-size:14px}
     label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    .row{display:flex;gap:8px}
-    input[type=text], input[type=datetime-local], input[type=number], select, textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ec;font-size:13px}
-    .small{font-size:12px;color:var(--muted)}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    input[type=text],input[type=datetime-local],input[type=number],select{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ec;font-size:13px}
     .list{max-height:180px;overflow:auto;margin-top:8px;border-radius:8px;border:1px dashed #eef2f5;padding:8px}
     .item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfcfd);border:1px solid #f1f5f9;margin-bottom:8px}
     .item .meta{font-size:13px}
     .item .meta small{display:block;color:var(--muted);font-size:12px}
-    .item button{padding:6px 8px;font-size:12px}
-
-    /* main area */
-    .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-    .filters{display:flex;gap:8px;align-items:center}
-    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+    .seq{background:#e5e7eb;border-radius:6px;padding:2px 6px;font-size:12px;margin-right:6px;color:#374151}
     .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:var(--shadow);border:1px solid #eceff2}
     .card .top{display:flex;justify-content:space-between;align-items:flex-start}
-    .tag{font-size:12px;padding:6px 8px;border-radius:999px;background:#f3f4f6;color:#374151}
     .price{font-weight:700;font-size:16px}
-    .pill{display:inline-block;padding:6px 8px;border-radius:999px;background:#f8fafc;font-size:12px;color:#374151;margin-right:6px}
-    .card .meta{color:var(--muted);font-size:13px;margin-top:8px}
-    .card .actions{display:flex;gap:8px;margin-top:12px}
+    .meta{color:var(--muted);font-size:13px;margin-top:8px}
+    .actions{display:flex;gap:8px;margin-top:12px}
     .fav.active{background:#111827;color:#fff}
-
-    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
-
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.panel{order:2}}
+    footer{text-align:center;color:var(--muted);font-size:13px;margin-top:18px}
   </style>
 </head>
 <body>
   <div class="app">
     <header>
       <div>
-        <h1>行程可视化规划器</h1>
-        <div class="sub">白+灰 · 简洁高级感 · 中文界面</div>
+        <h1>行程可视化规划器 v2</h1>
+        <div class="sub">自动组合 · 修改支持 · 自动保存 · 中文界面</div>
       </div>
       <div class="toolbar">
         <button id="resetBtn" class="btn-ghost">重置页面</button>
@@ -69,309 +53,133 @@
     <div class="layout">
       <aside class="panel">
         <div class="section">
-          <h3>添加出发方案</h3>
+          <h3>出发方案</h3>
           <div class="form-grid">
-            <div>
-              <label>出发地</label>
-              <input id="o_from" type="text" placeholder="例如：PEK" />
-            </div>
-            <div>
-              <label>目的地</label>
-              <input id="o_to" type="text" placeholder="例如：BCN" />
-            </div>
-            <div>
-              <label>航空公司 / 航班号</label>
-              <input id="o_flight" type="text" placeholder="例如：CA123" />
-            </div>
-            <div>
-              <label>价格</label>
-              <input id="o_price" type="number" placeholder="数字" />
-            </div>
-            <div>
-              <label>出发时间</label>
-              <input id="o_dep" type="datetime-local" />
-            </div>
-            <div>
-              <label>到达时间</label>
-              <input id="o_arr" type="datetime-local" />
-            </div>
-            <div>
-              <label>是否直飞</label>
-              <select id="o_direct"><option value="1">是</option><option value="0">否</option></select>
-            </div>
-            <div>
-              <label>中转地（逗号分隔）</label>
-              <input id="o_stops" type="text" placeholder="例如：AMS,FRA 或留空" />
-            </div>
-            <div style="grid-column:1/3">
-              <label>购票来源 / 备注</label>
-              <input id="o_note" type="text" placeholder="例如：官网 / 代理 / 备注信息" />
-            </div>
+            <input id="o_from" type="text" placeholder="出发地">
+            <input id="o_to" type="text" placeholder="目的地">
+            <input id="o_flight" type="text" placeholder="航班号">
+            <input id="o_price" type="number" placeholder="价格">
+            <input id="o_dep" type="datetime-local" placeholder="--:--">
+            <input id="o_arr" type="datetime-local" placeholder="--:--">
+            <select id="o_direct"><option value="1">直飞</option><option value="0">中转</option></select>
+            <input id="o_stops" type="text" placeholder="中转地(可空)">
+            <input id="o_note" type="text" placeholder="购票来源/备注" style="grid-column:1/3">
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
             <button id="addOutbound" class="btn-primary">添加出发方案</button>
-            <button id="clearOutbound" class="btn-ghost">清空输入</button>
           </div>
-
-          <div class="small" style="margin-top:10px">已添加的出发方案</div>
-          <div id="outList" class="list" aria-live="polite"></div>
+          <div id="outList" class="list"></div>
         </div>
 
         <div class="section">
-          <h3>添加返程方案</h3>
+          <h3>返程方案</h3>
           <div class="form-grid">
-            <div>
-              <label>出发地</label>
-              <input id="r_from" type="text" placeholder="例如：BCN" />
-            </div>
-            <div>
-              <label>目的地</label>
-              <input id="r_to" type="text" placeholder="例如：PEK" />
-            </div>
-            <div>
-              <label>航空公司 / 航班号</label>
-              <input id="r_flight" type="text" placeholder="例如：MU654" />
-            </div>
-            <div>
-              <label>价格</label>
-              <input id="r_price" type="number" placeholder="数字" />
-            </div>
-            <div>
-              <label>出发时间</label>
-              <input id="r_dep" type="datetime-local" />
-            </div>
-            <div>
-              <label>到达时间</label>
-              <input id="r_arr" type="datetime-local" />
-            </div>
-            <div>
-              <label>是否直飞</label>
-              <select id="r_direct"><option value="1">是</option><option value="0">否</option></select>
-            </div>
-            <div>
-              <label>中转地（逗号分隔）</label>
-              <input id="r_stops" type="text" placeholder="例如：AMS 或留空" />
-            </div>
-            <div style="grid-column:1/3">
-              <label>购票来源 / 备注</label>
-              <input id="r_note" type="text" placeholder="例如：官网 / 代理 / 备注信息" />
-            </div>
+            <input id="r_from" type="text" placeholder="出发地">
+            <input id="r_to" type="text" placeholder="目的地">
+            <input id="r_flight" type="text" placeholder="航班号">
+            <input id="r_price" type="number" placeholder="价格">
+            <input id="r_dep" type="datetime-local" placeholder="--:--">
+            <input id="r_arr" type="datetime-local" placeholder="--:--">
+            <select id="r_direct"><option value="1">直飞</option><option value="0">中转</option></select>
+            <input id="r_stops" type="text" placeholder="中转地(可空)">
+            <input id="r_note" type="text" placeholder="购票来源/备注" style="grid-column:1/3">
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
             <button id="addReturn" class="btn-primary">添加返程方案</button>
-            <button id="clearReturn" class="btn-ghost">清空输入</button>
           </div>
-
-          <div class="small" style="margin-top:10px">已添加的返程方案</div>
-          <div id="retList" class="list" aria-live="polite"></div>
+          <div id="retList" class="list"></div>
         </div>
       </aside>
 
       <main>
         <div class="panel">
-          <div class="controls">
-            <div style="flex:1;display:flex;gap:8px;align-items:center">
-              <button id="genBtn" class="btn-primary">生成往返组合</button>
-              <div class="filters">
-                <label>只看直飞 <input id="filterDirect" type="checkbox" style="margin-left:6px"/></label>
-                <label>最大中转数 <input id="filterStops" type="number" min="0" value="10" style="width:70px;margin-left:6px"/></label>
-                <label>最小停留天 <input id="filterStay" type="number" min="0" value="0" style="width:70px;margin-left:6px"/></label>
-                <label>最大总价 <input id="filterPrice" type="number" min="0" value="999999" style="width:100px;margin-left:6px"/></label>
-              </div>
-            </div>
-
-            <div style="display:flex;gap:8px;align-items:center">
-              <label>排序</label>
-              <select id="sortBy"><option value="price">价格</option><option value="stay">停留天数</option><option value="stops">中转数</option></select>
-            </div>
-          </div>
-
-          <div id="summary" class="small">尚未生成。</div>
-          <div style="margin-top:12px" class="cards" id="cards"></div>
+          <div id="summary" class="meta">系统将自动生成往返组合。</div>
+          <div id="cards" class="cards" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
         </div>
-        <footer>提示：点击卡片右上角收藏可标记，复制按钮可复制该卡片的所有信息。</footer>
+        <footer>修改、删除、添加操作后自动更新组合 · 数据自动保存（可撤销一次删除）</footer>
       </main>
     </div>
   </div>
 
   <script>
-    // 简化工具函数
-    function el(tag, cls){const e=document.createElement(tag); if(cls) e.className=cls; return e}
-    function parseDT(v){ if(!v) return null; const d=new Date(v); return isNaN(d)?null:d }
-    function daysBetween(a,b){ if(!a||!b) return null; return Math.round((b - a)/(24*60*60*1000)); }
+    const outList=document.getElementById('outList');
+    const retList=document.getElementById('retList');
+    const cards=document.getElementById('cards');
+    const summary=document.getElementById('summary');
 
-    // 数据存储
-    let outbound = []; let returns_ = []; let combos = [];
+    let outbound=[],returns_=[],combos=[];let lastDeleted=null;
 
-    // DOM refs
-    const outList = document.getElementById('outList');
-    const retList = document.getElementById('retList');
-    const cards = document.getElementById('cards');
-    const summary = document.getElementById('summary');
+    function saveData(){localStorage.setItem('tripData',JSON.stringify({outbound,returns_}))}
+    function loadData(){const d=localStorage.getItem('tripData');if(d){try{const j=JSON.parse(d);outbound=j.outbound||[];returns_=j.returns_||[];}catch{}}}
 
-    // 添加项函数
-    function addItem(list, obj, renderList){ list.push(obj); renderList(); }
-    function removeItem(list, idx, renderList){ list.splice(idx,1); renderList(); }
+    function el(t,c){const e=document.createElement(t);if(c)e.className=c;return e}
+    function parseDT(v){if(!v)return null;const d=new Date(v);return isNaN(d)?null:d}
+    function daysBetween(a,b){if(!a||!b)return null;return Math.round((b-a)/(24*60*60*1000));}
 
-    function renderOutList(){ outList.innerHTML=''; outbound.forEach((o,i)=>{
-      const it = el('div','item');
-      const meta = el('div','meta'); meta.innerHTML = `<strong>${o.flight||''}</strong> <small>${o.from||''}→${o.to||''}</small><small>¥${o.price||''} · ${o.direct? '直飞':'中转'}</small>`;
-      const btns = el('div');
-      const del = el('button'); del.textContent='删除'; del.addEventListener('click',()=>{ removeItem(outbound,i,renderOutList); });
-      btns.appendChild(del);
-      it.appendChild(meta); it.appendChild(btns); outList.appendChild(it);
-    }) }
-    function renderRetList(){ retList.innerHTML=''; returns_.forEach((o,i)=>{
-      const it = el('div','item');
-      const meta = el('div','meta'); meta.innerHTML = `<strong>${o.flight||''}</strong> <small>${o.from||''}→${o.to||''}</small><small>¥${o.price||''} · ${o.direct? '直飞':'中转'}</small>`;
-      const btns = el('div');
-      const del = el('button'); del.textContent='删除'; del.addEventListener('click',()=>{ removeItem(returns_,i,renderRetList); });
-      btns.appendChild(del);
-      it.appendChild(meta); it.appendChild(btns); retList.appendChild(it);
-    }) }
+    function renderOutList(){outList.innerHTML='';outbound.forEach((o,i)=>{
+      const it=el('div','item');
+      const meta=el('div','meta');meta.innerHTML=`<span class='seq'>#${i+1}</span><strong>${o.flight}</strong><small>${o.from}→${o.to}</small><small>¥${o.price} · ${o.direct?'直飞':'中转'}</small>`;
+      const btns=el('div');
+      const edit=el('button');edit.textContent='修改';edit.addEventListener('click',()=>editItem(outbound,i,renderOutList));
+      const del=el('button');del.textContent='删除';del.addEventListener('click',()=>deleteItem(outbound,i,renderOutList));
+      btns.append(edit,del);
+      it.append(meta,btns);
+      outList.appendChild(it);
+    });renderCombos();saveData();}
 
-    // 绑定添加按钮
-    document.getElementById('addOutbound').addEventListener('click', ()=>{
-      const o={
-        from:document.getElementById('o_from').value.trim(),
-        to:document.getElementById('o_to').value.trim(),
-        flight:document.getElementById('o_flight').value.trim(),
-        price:parseFloat(document.getElementById('o_price').value) || 0,
-        dep:document.getElementById('o_dep').value,
-        arr:document.getElementById('o_arr').value,
-        direct:document.getElementById('o_direct').value==='1',
-        stops: (document.getElementById('o_stops').value||'').split(',').map(s=>s.trim()).filter(Boolean),
-        note:document.getElementById('o_note').value.trim()
+    function renderRetList(){retList.innerHTML='';returns_.forEach((o,i)=>{
+      const it=el('div','item');
+      const meta=el('div','meta');meta.innerHTML=`<span class='seq'>#${i+1}</span><strong>${o.flight}</strong><small>${o.from}→${o.to}</small><small>¥${o.price} · ${o.direct?'直飞':'中转'}</small>`;
+      const btns=el('div');
+      const edit=el('button');edit.textContent='修改';edit.addEventListener('click',()=>editItem(returns_,i,renderRetList));
+      const del=el('button');del.textContent='删除';del.addEventListener('click',()=>deleteItem(returns_,i,renderRetList));
+      btns.append(edit,del);
+      it.append(meta,btns);
+      retList.appendChild(it);
+    });renderCombos();saveData();}
+
+    function editItem(list,idx,render){const d=list[idx];if(list===outbound){
+      Object.entries(d).forEach(([k,v])=>{const id='o_'+k;if(document.getElementById(id))document.getElementById(id).value=(Array.isArray(v)?v.join(', '):v)||''});
+      document.getElementById('addOutbound').textContent='保存修改';document.getElementById('addOutbound').onclick=()=>{
+        list[idx]=collectForm('o_');render();document.getElementById('addOutbound').textContent='添加出发方案';document.getElementById('addOutbound').onclick=addOutbound;
       };
-      if(!o.from || !o.to || !o.flight || !o.dep || !o.arr){ alert('请补全：出发地/目的地/航班号/出发时间/到达时间'); return; }
-      addItem(outbound, o, renderOutList);
-      // 清空输入部分可选
-      ['o_flight','o_price','o_dep','o_arr','o_note','o_stops'].forEach(id=>document.getElementById(id).value='');
-    });
-
-    document.getElementById('addReturn').addEventListener('click', ()=>{
-      const o={
-        from:document.getElementById('r_from').value.trim(),
-        to:document.getElementById('r_to').value.trim(),
-        flight:document.getElementById('r_flight').value.trim(),
-        price:parseFloat(document.getElementById('r_price').value) || 0,
-        dep:document.getElementById('r_dep').value,
-        arr:document.getElementById('r_arr').value,
-        direct:document.getElementById('r_direct').value==='1',
-        stops: (document.getElementById('r_stops').value||'').split(',').map(s=>s.trim()).filter(Boolean),
-        note:document.getElementById('r_note').value.trim()
+    }else{
+      Object.entries(d).forEach(([k,v])=>{const id='r_'+k;if(document.getElementById(id))document.getElementById(id).value=(Array.isArray(v)?v.join(', '):v)||''});
+      document.getElementById('addReturn').textContent='保存修改';document.getElementById('addReturn').onclick=()=>{
+        list[idx]=collectForm('r_');render();document.getElementById('addReturn').textContent='添加返程方案';document.getElementById('addReturn').onclick=addReturn;
       };
-      if(!o.from || !o.to || !o.flight || !o.dep || !o.arr){ alert('请补全：出发地/目的地/航班号/出发时间/到达时间'); return; }
-      addItem(returns_, o, renderRetList);
-      ['r_flight','r_price','r_dep','r_arr','r_note','r_stops'].forEach(id=>document.getElementById(id).value='');
-    });
+    }}
 
-    document.getElementById('clearOutbound').addEventListener('click',()=>{
-      ['o_from','o_to','o_flight','o_price','o_dep','o_arr','o_note','o_stops'].forEach(id=>document.getElementById(id).value='');
-    });
-    document.getElementById('clearReturn').addEventListener('click',()=>{
-      ['r_from','r_to','r_flight','r_price','r_dep','r_arr','r_note','r_stops'].forEach(id=>document.getElementById(id).value='');
-    });
+    function deleteItem(list,idx,render){if(!confirm('确定要删除该方案吗？'))return;lastDeleted={list,idx,item:list[idx]};list.splice(idx,1);render();if(confirm('已删除。是否撤销？'))undoDelete();}
+    function undoDelete(){if(lastDeleted){lastDeleted.list.splice(lastDeleted.idx,0,lastDeleted.item);renderOutList();renderRetList();lastDeleted=null;}}
 
-    // 生成组合
-    function generateCombos(){ combos = []; for(const o of outbound){ for(const r of returns_){
-        const oArr = parseDT(o.arr); const rDep = parseDT(r.dep);
-        if(!oArr || !rDep) continue;
-        const stay = daysBetween(oArr, rDep);
-        const totalPrice = (o.price||0) + (r.price||0);
-        const totalStops = (o.stops.length||0) + (r.stops.length||0);
-        const direct = !!(o.direct && r.direct);
-        combos.push({out:o, ret:r, stay, totalPrice, totalStops, direct, fav:false});
-      }}
-      return combos;
-    }
+    function collectForm(p){return{from:val(p+'from'),to:val(p+'to'),flight:val(p+'flight'),price:+val(p+'price')||0,dep:val(p+'dep'),arr:val(p+'arr'),direct:document.getElementById(p+'direct').value==='1',stops:(val(p+'stops')||'').split(',').map(s=>s.trim()).filter(Boolean),note:val(p+'note')}}
+    function val(id){return document.getElementById(id).value.trim()}
 
-    // 渲染卡片
-    function renderCards(list){ cards.innerHTML=''; if(list.length===0){ summary.textContent = '没有匹配的组合。'; return; }
-      summary.textContent = `共 ${list.length} 个组合（可筛选/排序）`;
-      list.forEach((c,idx)=>{
-        const card = el('div','card');
-        const top = el('div','top');
-        const left = el('div'); left.innerHTML = `<div class="tag">${c.out.from}→${c.out.to}</div><div style="margin-top:8px;font-weight:600">${c.out.flight} ⇢ ${c.ret.flight}</div>`;
-        const right = el('div'); right.innerHTML = `<div class="price">¥${c.totalPrice}</div><div class="small">停留 ${c.stay} 天 · 中转 ${c.totalStops} 次</div>`;
-        top.appendChild(left); top.appendChild(right);
-        card.appendChild(top);
+    function addOutbound(){const o=collectForm('o_');if(!o.from||!o.to||!o.flight){alert('请至少填写出发地、目的地和航班号');return;}outbound.push(o);renderOutList();}
+    function addReturn(){const o=collectForm('r_');if(!o.from||!o.to||!o.flight){alert('请至少填写出发地、目的地和航班号');return;}returns_.push(o);renderRetList();}
 
-        const meta = el('div','meta');
-        meta.innerHTML = `<div><small>去：${c.out.from} ${c.out.dep} → ${c.out.to} ${c.out.arr} · ${c.out.note||''}</small></div>
-                          <div style="margin-top:6px"><small>回：${c.ret.from} ${c.ret.dep} → ${c.ret.to} ${c.ret.arr} · ${c.ret.note||''}</small></div>`;
-        card.appendChild(meta);
+    document.getElementById('addOutbound').onclick=addOutbound;
+    document.getElementById('addReturn').onclick=addReturn;
 
-        const actions = el('div','actions');
-        const fav = el('button','fav'); fav.textContent='收藏'; if(c.fav) fav.classList.add('active'); fav.addEventListener('click', ()=>{ c.fav = !c.fav; fav.classList.toggle('active'); });
-        const copyBtn = el('button'); copyBtn.textContent='复制'; copyBtn.addEventListener('click', ()=>{ copyCardText(c); });
-        actions.appendChild(fav); actions.appendChild(copyBtn);
-        card.appendChild(actions);
+    function renderCombos(){combos=[];for(const o of outbound){for(const r of returns_){const oArr=parseDT(o.arr),rDep=parseDT(r.dep);const stay=daysBetween(oArr,rDep);const totalPrice=o.price+r.price;const totalStops=(o.stops.length||0)+(r.stops.length||0);const direct=o.direct&&r.direct;combos.push({out:o,ret:r,stay,totalPrice,totalStops,direct,fav:false});}}
+      showCombos();}
 
-        cards.appendChild(card);
-      });
-    }
+    function showCombos(){cards.innerHTML='';if(!combos.length){summary.textContent='暂无组合。';return;}summary.textContent=`共 ${combos.length} 个组合`;
+      combos.forEach(c=>{const card=el('div','card');card.innerHTML=`<div class='top'><div><strong>${c.out.flight}</strong> ⇢ <strong>${c.ret.flight}</strong></div><div class='price'>¥${c.totalPrice}</div></div><div class='meta'>停留 ${c.stay??'--'} 天 · 中转 ${c.totalStops} 次 · ${c.direct?'直飞':'含中转'}</div><div class='actions'></div>`;
+        const fav=el('button','fav');fav.textContent='收藏';fav.onclick=()=>{c.fav=!c.fav;fav.classList.toggle('active');saveData();}
+        const cp=el('button');cp.textContent='复制';cp.onclick=()=>copyCard(c);
+        card.querySelector('.actions').append(fav,cp);
+        cards.append(card);
+      });}
 
-    function copyCardText(c){ const lines = [];
-      lines.push(`出发: ${c.out.flight} | ${c.out.from} → ${c.out.to} | ${c.out.dep} → ${c.out.arr} | 票价: ¥${c.out.price}`);
-      if(c.out.stops.length) lines.push(`去程中转: ${c.out.stops.join(', ')}`);
-      lines.push(`返程: ${c.ret.flight} | ${c.ret.from} → ${c.ret.to} | ${c.ret.dep} → ${c.ret.arr} | 票价: ¥${c.ret.price}`);
-      if(c.ret.stops.length) lines.push(`回程中转: ${c.ret.stops.join(', ')}`);
-      lines.push(`总价: ¥${c.totalPrice} · 停留 ${c.stay} 天 · 中转 ${c.totalStops} 次 · 直飞: ${c.direct? '是':'否'}`);
-      if(c.out.note) lines.push(`去程备注: ${c.out.note}`); if(c.ret.note) lines.push(`回程备注: ${c.ret.note}`);
-      navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('卡片信息已复制到剪贴板'))
-        .catch(()=>alert('复制失败，请手动复制'));
-    }
+    function copyCard(c){const t=`出发:${c.out.flight} ${c.out.from}→${c.out.to}\n返程:${c.ret.flight} ${c.ret.from}→${c.ret.to}\n总价:¥${c.totalPrice}`;navigator.clipboard.writeText(t);alert('已复制');}
 
-    // 过滤与排序
-    function applyFiltersAndRender(){
-      const onlyDirect = document.getElementById('filterDirect').checked;
-      const maxStops = parseInt(document.getElementById('filterStops').value)||999;
-      const minStay = parseInt(document.getElementById('filterStay').value)||0;
-      const maxPrice = parseFloat(document.getElementById('filterPrice').value)||99999999;
-      const sortBy = document.getElementById('sortBy').value;
-      let list = combos.filter(c=>{
-        if(onlyDirect && !c.direct) return false;
-        if(c.totalStops > maxStops) return false;
-        if(c.stay < minStay) return false;
-        if(c.totalPrice > maxPrice) return false;
-        return true;
-      });
-      if(sortBy==='price') list.sort((a,b)=>a.totalPrice-b.totalPrice);
-      else if(sortBy==='stay') list.sort((a,b)=>a.stay-b.stay);
-      else if(sortBy==='stops') list.sort((a,b)=>a.totalStops-b.totalStops);
-      renderCards(list);
-    }
+    document.getElementById('copyFavorites').onclick=()=>{const f=combos.filter(x=>x.fav);if(!f.length)return alert('暂无收藏');navigator.clipboard.writeText(f.map(c=>`${c.out.flight} ${c.ret.flight} ¥${c.totalPrice}`).join('\n')).then(()=>alert('已复制收藏'));}
 
-    // 生成按钮
-    document.getElementById('genBtn').addEventListener('click', ()=>{
-      combos = generateCombos(); applyFiltersAndRender();
-    });
+    document.getElementById('resetBtn').onclick=()=>{if(!confirm('确定清空所有数据？'))return;localStorage.removeItem('tripData');outbound=[];returns_=[];renderOutList();renderRetList();renderCombos();alert('已清空');}
 
-    ['filterDirect','filterStops','filterStay','filterPrice','sortBy'].forEach(id=>{
-      document.getElementById(id).addEventListener('change', applyFiltersAndRender);
-    });
-
-    // 复制收藏卡片
-    document.getElementById('copyFavorites').addEventListener('click', ()=>{
-      const favs = combos.filter(c=>c.fav);
-      if(favs.length===0){ alert('暂无已收藏的卡片'); return; }
-      const texts = favs.map(c=>{
-        return [`${c.out.flight} ${c.out.from}→${c.out.to} ${c.out.dep}→${c.out.arr} ¥${c.out.price}`,
-                `${c.ret.flight} ${c.ret.from}→${c.ret.to} ${c.ret.dep}→${c.ret.arr} ¥${c.ret.price}`,
-                `总价: ¥${c.totalPrice} · 停留 ${c.stay} 天 · 中转 ${c.totalStops} 次 · 直飞: ${c.direct? '是':'否'}`].join('\n');
-      }).join('\n\n');
-      navigator.clipboard.writeText(texts).then(()=>alert('已复制所有收藏卡片信息')).catch(()=>alert('复制失败'));
-    });
-
-    // 重置
-    document.getElementById('resetBtn').addEventListener('click', ()=>{
-      if(!confirm('确定清空页面中的所有数据吗？该操作不可撤销。')) return;
-      outbound=[]; returns_=[]; combos=[]; renderOutList(); renderRetList(); renderCards([]); summary.textContent='已重置。';
-    });
-
-    // 初始渲染
-    renderOutList(); renderRetList();
+    loadData();renderOutList();renderRetList();renderCombos();
   </script>
 </body>
 </html>
