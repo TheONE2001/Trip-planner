@@ -1,2 +1,1 @@
-# Trip-combiner
-Trip-combiner
+# Trip-planner
